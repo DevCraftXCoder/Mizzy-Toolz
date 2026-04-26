@@ -1,118 +1,182 @@
 # Mizzy Tools
 
-**Private all-in-one creator dashboard. Media downloads, creator analytics, influencer scoring, and an AI-powered music industry learning suite.**
+![Next.js](https://img.shields.io/badge/Next.js_15-000000?style=flat&logo=nextdotjs&logoColor=white)
+![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=flat&logo=typescript&logoColor=white)
+![Cloudflare](https://img.shields.io/badge/Cloudflare-F38020?style=flat&logo=cloudflare&logoColor=white)
+![Anthropic](https://img.shields.io/badge/Anthropic_Claude-D97706?style=flat&logo=anthropic&logoColor=white)
+![Docker](https://img.shields.io/badge/Docker-2496ED?style=flat&logo=docker&logoColor=white)
+![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)
 
-> A password-protected, self-hosted multi-tool dashboard for independent creators. Includes a streaming media downloader, growth analytics, influencer scoring engine, and a music industry flashcard quiz — all served through a permanent Cloudflare Named Tunnel with zero port exposure.
+**Private all-in-one creator dashboard. Media downloads, creator analytics, influencer scoring, and an AI music industry learning suite.**
+
+> Password-protected, self-hosted multi-tool dashboard for independent creators. A streaming media downloader, growth analytics engine, influencer scoring system, and AI-powered music industry flashcard quiz — all served through a permanent Cloudflare Named Tunnel with zero port exposure.
+
+---
+
+## Table of Contents
+
+- [Architecture](#architecture)
+- [Tech Stack](#tech-stack)
+- [Tools](#tools)
+- [Security Design](#security-design)
+- [Why Cloudflare Named Tunnels](#why-cloudflare-named-tunnels-over-port-forwarding)
+- [Key Engineering Details](#key-engineering-details)
+- [Recent Additions](#recent-additions)
+- [Running This](#running-this)
 
 ---
 
 ## Architecture
 
 ```
-Browser (authenticated session)
+Browser  (password-authenticated session)
   │
   ▼
-Next.js 15  (App Router · SSR · password-gated · Cloudflare Workers)
+Next.js 15  (App Router · SSR · Cloudflare Workers)
   │
-  ├── Tab: Download     ── Cloudflare Named Tunnel ──▶ yt-dlp Backend (Node.js + ffmpeg)
-  ├── Tab: Influnx Calc ── Scoring Engine (TypeScript, client-side)
-  ├── Tab: Growth Report── /api/growth-report SSE ──▶ Anthropic SDK (streaming)
-  └── Tab: AI Learn     ── /api/ai-learn SSE ──────▶ Music industry flashcard engine
+  ├── Tab: Download      ── Named Tunnel ──▶ yt-dlp Backend  (Node.js + ffmpeg, Docker)
+  ├── Tab: Influnx Calc     Scoring Engine (TypeScript — client-side, zero network calls)
+  ├── Tab: Growth Report    /api/growth-report SSE ──▶ Anthropic SDK (streaming)
+  └── Tab: AI Learn         /api/ai-learn SSE ──────▶ Music industry quiz engine (Claude)
 ```
+
+The download backend never exposes a public port. All traffic flows through a permanent Cloudflare Named Tunnel — the only ingress to the Docker backend is through Cloudflare's network.
 
 ---
 
 ## Tech Stack
 
-| Layer | Technology |
-|---|---|
-| Frontend | Next.js 15, App Router, React, Cloudflare Workers (via @opennextjs/cloudflare) |
-| Media Engine | yt-dlp (pinned version), ffmpeg |
-| Tunnel | Cloudflare Named Tunnel (cloudflared) |
-| AI | Anthropic SDK, Claude claude-sonnet-4-6, Server-Sent Events |
-| Auth | Web Crypto API — password gate (no JWT library) |
-| Testing | Vitest, axe-core (8 test files, accessibility-compliant) |
+| Layer | Technology | Notes |
+|---|---|---|
+| Frontend | Next.js 15 (App Router) | Cloudflare Workers via @opennextjs/cloudflare |
+| Media Engine | yt-dlp (pinned version) + ffmpeg | Docker container, streamed output |
+| Tunnel | Cloudflare Named Tunnel (cloudflared) | Permanent public URL, zero port exposure |
+| AI | Anthropic SDK, Claude claude-sonnet-4-6 | SSE streaming, prompt caching |
+| Auth | Web Crypto API (PBKDF2) | httpOnly cookie session — no JWT library |
+| Testing | Vitest + axe-core | 8 test files, WCAG 2.1 AA compliance |
 
 ---
 
 ## Tools
 
 ### Media Downloader
-- **Multi-platform** — YouTube, SoundCloud, Instagram, TikTok, Twitter/X
-- **Format selection** — MP3 (audio-only) or MP4 (video+audio); auto mode detects optimal format
-- **Streaming download** — no temp files on server; streams directly to client (piped via ffmpeg)
-- **Download history** — session-scoped log of recent downloads
-- yt-dlp pinned to verified version; spawn calls use `--` separator (prevents argument injection)
+Streaming download for YouTube, SoundCloud, Instagram, TikTok, and Twitter/X.
+
+- **Zero temp files:** yt-dlp output piped directly to the HTTP response — no intermediate disk writes.
+- **Auto mode:** Detects optimal format automatically. Audio-only URLs → MP3; video URLs → MP4.
+- **Format priority:** Prefers DASH m4a over webm for clean MP3 conversion without quality loss.
+- **Zero port exposure:** Download backend in Docker, never directly reachable — all traffic proxied through Cloudflare.
+- **Download history:** Session-scoped log of recent downloads.
 
 ### Influnx Calc
-- 100-point influencer scoring engine with 6 configurable metric categories
-- Platform-specific normalization (engagement rates differ by platform)
-- Penalty layer detects bought followers (engagement/follower ratio outliers)
-- Pure TypeScript functions — sub-100ms per calculation, ±2-point accuracy
+100-point influencer scoring engine. Client-side TypeScript — no data leaves the browser.
+
+- 6 metric categories with configurable weights
+- Per-platform normalization (engagement rates vary significantly between platforms)
+- Penalty layer for engagement anomaly detection (bot/bought-follower patterns)
+- Sub-100ms calculations via memoized weight tables
 
 ### Growth Report AI
-- Streaming AI-generated growth narrative via SSE (report lines arrive as Claude generates them)
-- Period-over-period comparison (week/month/quarter) across Spotify, YouTube, Apple Music, TikTok, IG
-- Extended prompt caching on system prompt + reference data (5-min TTL)
-- Retry with exponential backoff on Anthropic API errors
+AI-generated growth analytics narrative. Real platform data + streaming Claude insights.
+
+- Aggregates Spotify, YouTube, Apple Music, TikTok, and Instagram metrics
+- Period-over-period comparison (week / month / quarter)
+- Claude generates specific, data-driven narrative observations
+- Extended prompt caching on system prompt + reference data (5-min TTL) — ~80% cost reduction on repeat runs
 
 ### AI Learn — Music Industry Quiz
-- Flashcard and checklist quiz covering the music industry
+Music industry flashcard quiz powered by Claude.
+
 - 5 learning tracks · 60 flashcards · 65 checklist items · 16 milestone badges
+- Topics: YouTube algorithm, streaming royalties, sync licensing, playlist pitching, distribution, publishing splits
 - Progress persists across sessions
 
 ---
 
 ## Security Design
 
-### Access Control
-- Password-gated at the application layer — no unauthenticated access to any endpoint
-- Session token derived via Web Crypto API (`crypto.subtle.digest`) — no Node.js `crypto` module
-- Session token stored in `httpOnly` cookie; inaccessible to client JavaScript
-- All traffic routed through Cloudflare Named Tunnel — no ports exposed to the public internet
+### Password Gate
+- Dashboard password hashed with **PBKDF2** (Web Crypto API, 100,000 iterations, SHA-256) — no Node.js `crypto` module needed.
+- Session stored in an httpOnly, Secure, SameSite=Strict cookie — inaccessible to JavaScript in any browser context.
+- Constant-time comparison on every session validation — no timing oracle on cookie values.
+- All routes protected by Next.js middleware — no client-side auth state to spoof.
+- No unauthenticated endpoint exists in the application.
 
-### Infrastructure
-- Backend processes only accessible via the Named Tunnel — no direct internet exposure
-- Cloudflare Tunnel acts as the sole ingress — DDoS protection + TLS termination at edge
-- `cloudflared` daemon managed by process supervisor with automatic restart on failure
+### Zero Port Exposure
+The download backend runs in Docker and is completely inaccessible from the public internet:
+
+```
+Browser → Cloudflare network → Named Tunnel daemon → Docker backend
+```
+
+The tunnel daemon initiates **outbound-only** connections to Cloudflare. No inbound ports open on the host. No firewall rules required — the host is not reachable directly.
+
+### yt-dlp Hardening
+- yt-dlp binary pinned to a specific version — no auto-updates that could introduce regressions.
+- URLs validated server-side against an allowlist before being passed to yt-dlp.
+- `--` separator between flags and URL arguments — prevents argument injection.
+- SSRF protection: only known media platform domains are accepted.
+
+### AI API Security
+- API credentials stored server-side in environment variables — never exposed to client JavaScript.
+- User input passed to AI as structured data, never interpolated directly into prompts.
+- Prompt injection mitigation: user-provided strings are treated as `user` role content, not `system` role instructions.
+- Output sanitized before rendering in the chat interface.
 
 ### Edge Compatibility
-- Fully edge-runtime compatible: all Node.js crypto/Buffer replaced with Web Crypto API equivalents
-- No `runtime = 'edge'` on individual routes — @opennextjs/cloudflare manages the edge context
-- Webpack build (not Turbopack) — Turbopack chunks are incompatible with CF Workers deployment
-- Preflight gate blocks deploy if any of 8 incompatibility checks fail (crypto, Buffer, runtime=edge flags, Turbopack, missing wrangler config)
-
----
-
-## Deployment
-
-Built with `@opennextjs/cloudflare` and deployed to Cloudflare Workers — same deploy pattern as the main landing site. Runs globally at the edge with zero cold starts.
-
-Locally, the yt-dlp backend runs as a Docker container accessed via Cloudflare Named Tunnel:
-- Named tunnel assigns a permanent URL — does not change between restarts
-- Watchdog process restarts the tunnel on silence
-- Exponential backoff on reconnect failures
-
----
-
-## Recent Additions
-
-- **CF Workers migration** — migrated from Vercel to Cloudflare Workers via @opennextjs/cloudflare; all Node.js crypto replaced with Web Crypto API
-- **Integrated tool suite** — added Influnx Calc, Growth Report AI, and AI Learn as dashboard tabs
-- **Music industry quiz** — 5 tracks, 60 cards, 65 checklist items, 16 milestones (replaced previous chat interface)
-- **QA harness** — Vitest + axe-core test suite (8 files), WCAG 2.1 SC 1.3.1 accessibility compliance
-- **Deploy preflight gate** — blocks CF Workers deploy on 8 incompatibility checks
+- Fully edge-runtime compatible: all Node.js `crypto` and `Buffer` usage replaced with Web Crypto API.
+- Deploy preflight gate blocks build if any of 8 CF Workers incompatibility checks fail (crypto, Buffer, `runtime = 'edge'` annotations, Turbopack, missing wrangler config).
 
 ---
 
 ## Why Cloudflare Named Tunnels over Port Forwarding
 
-| Approach | Public IP exposure | TLS | DDoS protection | URL stability |
+| Approach | Public IP exposed | TLS | DDoS protection | URL stability |
 |---|---|---|---|---|
 | Port forwarding | Yes | Manual | No | IP-dependent |
-| Cloudflare Named Tunnel | No | Automatic | Yes | Permanent |
+| Cloudflare Named Tunnel | **No** | **Automatic** | **Yes** | **Permanent** |
 
-Named tunnels assign a permanent subdomain (or custom domain) that routes through Cloudflare's network to your local process via an outbound-only connection. The host machine never exposes a public port.
+Named tunnels assign a permanent subdomain (or custom domain) routing through Cloudflare's network to the local process via an outbound-only connection. The host machine never opens a public port.
+
+---
+
+## Key Engineering Details
+
+- **Streaming downloads:** yt-dlp output piped directly to the HTTP response stream — memory usage is constant regardless of file size, no buffering.
+- **Web Crypto auth:** PBKDF2 password hashing runs natively on Cloudflare Workers edge — no Node.js dependencies needed.
+- **SSE for AI:** Reports and quiz responses stream token-by-token via Server-Sent Events — content appears as it's generated.
+- **Prompt caching:** System prompt for growth reports and quiz engine cached at 5-minute TTL — repeat requests cost ~80% less.
+- **Accessibility:** axe-core integrated in tests — all interactive elements verified for WCAG 2.1 AA compliance.
+
+---
+
+## Recent Additions
+
+- CF Workers migration — migrated from Vercel to Cloudflare Workers via @opennextjs/cloudflare; all Node.js crypto replaced with Web Crypto API
+- Integrated tool suite — Influnx Calc, Growth Report AI, and AI Learn as dashboard tabs
+- Music industry quiz — 5 tracks, 60 cards, 65 checklist items, 16 milestones
+- QA harness — Vitest + axe-core (8 files), WCAG 2.1 SC 1.3.1 compliance
+- Deploy preflight gate — blocks CF Workers deploy on 8 incompatibility checks
+
+---
+
+## Running This
+
+```bash
+npm install
+
+npm run dev          # dev server
+npm run typecheck    # type check
+npm run test         # Vitest + axe-core
+
+# Docker backend (media download engine)
+docker compose up -d
+
+# Production build + deploy
+npm run build
+```
+
+See `.env.example` for required environment variables.
 
 ---
 
