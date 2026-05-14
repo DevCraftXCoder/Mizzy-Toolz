@@ -3,26 +3,13 @@
 ![Next.js](https://img.shields.io/badge/Next.js_15-000000?style=flat&logo=nextdotjs&logoColor=white)
 ![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=flat&logo=typescript&logoColor=white)
 ![Cloudflare](https://img.shields.io/badge/Cloudflare-F38020?style=flat&logo=cloudflare&logoColor=white)
-![Anthropic](https://img.shields.io/badge/Anthropic_Claude-D97706?style=flat&logo=anthropic&logoColor=white)
+![AI Powered](https://img.shields.io/badge/AI_Powered-D97706?style=flat&logo=anthropic&logoColor=white)
 ![Docker](https://img.shields.io/badge/Docker-2496ED?style=flat&logo=docker&logoColor=white)
 ![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)
 
 **Private all-in-one creator dashboard. Media downloads, creator analytics, influencer scoring, and an AI music industry learning suite.**
 
 > Password-protected, self-hosted multi-tool dashboard for independent creators. A streaming media downloader, growth analytics engine, influencer scoring system, and AI-powered music industry flashcard quiz — all served through a permanent Cloudflare Named Tunnel with zero port exposure.
-
----
-
-## Table of Contents
-
-- [Architecture](#architecture)
-- [Tech Stack](#tech-stack)
-- [Tools](#tools)
-- [Security Design](#security-design)
-- [Why Cloudflare Named Tunnels](#why-cloudflare-named-tunnels-over-port-forwarding)
-- [Key Engineering Details](#key-engineering-details)
-- [Recent Additions](#recent-additions)
-- [Running This](#running-this)
 
 ---
 
@@ -36,8 +23,8 @@ Next.js 15  (App Router · SSR · Cloudflare Workers)
   │
   ├── Tab: Download      ── Named Tunnel ──▶ yt-dlp Backend  (Node.js + ffmpeg, Docker)
   ├── Tab: Influnx Calc     Scoring Engine (TypeScript — client-side, zero network calls)
-  ├── Tab: Growth Report    /api/growth-report SSE ──▶ Anthropic SDK (streaming)
-  └── Tab: AI Learn         /api/ai-learn SSE ──────▶ Music industry quiz engine (Claude)
+  ├── Tab: Growth Report    /api/growth-report SSE ──▶ AI SDK (streaming)
+  └── Tab: AI Learn         /api/ai-learn SSE ──────▶ Music industry quiz engine (AI)
 ```
 
 The download backend never exposes a public port. All traffic flows through a permanent Cloudflare Named Tunnel — the only ingress to the Docker backend is through Cloudflare's network.
@@ -51,7 +38,7 @@ The download backend never exposes a public port. All traffic flows through a pe
 | Frontend | Next.js 15 (App Router) | Cloudflare Workers via @opennextjs/cloudflare |
 | Media Engine | yt-dlp (pinned version) + ffmpeg | Docker container, streamed output |
 | Tunnel | Cloudflare Named Tunnel (cloudflared) | Permanent public URL, zero port exposure |
-| AI | Anthropic SDK, Claude claude-sonnet-4-6 | SSE streaming, prompt caching |
+| AI | AI SDK (LLM) | SSE streaming, prompt caching |
 | Auth | Web Crypto API (PBKDF2) | httpOnly cookie session — no JWT library |
 | Testing | Vitest + axe-core | 8 test files, WCAG 2.1 AA compliance |
 
@@ -77,15 +64,15 @@ Streaming download for YouTube, SoundCloud, Instagram, TikTok, and Twitter/X.
 - Sub-100ms calculations via memoized weight tables
 
 ### Growth Report AI
-AI-generated growth analytics narrative. Real platform data + streaming Claude insights.
+AI-generated growth analytics narrative. Real platform data + streaming AI insights.
 
 - Aggregates Spotify, YouTube, Apple Music, TikTok, and Instagram metrics
 - Period-over-period comparison (week / month / quarter)
-- Claude generates specific, data-driven narrative observations
+- AI generates specific, data-driven narrative observations
 - Extended prompt caching on system prompt + reference data (5-min TTL) — ~80% cost reduction on repeat runs
 
 ### AI Learn — Music Industry Quiz
-Music industry flashcard quiz powered by Claude.
+Music industry flashcard quiz powered by AI.
 
 - 5 learning tracks · 60 flashcards · 65 checklist items · 16 milestone badges
 - Topics: YouTube algorithm, streaming royalties, sync licensing, playlist pitching, distribution, publishing splits
@@ -160,26 +147,10 @@ Named tunnels assign a permanent subdomain (or custom domain) routing through Cl
 
 ---
 
-## Running This
-
-```bash
-npm install
-
-npm run dev          # dev server
-npm run typecheck    # type check
-npm run test         # Vitest + axe-core
-
-# Docker backend (media download engine)
-docker compose up -d
-
-# Production build + deploy
-npm run build
-```
-
-See `.env.example` for required environment variables.
-
----
-
 ## License
 
 MIT — see [LICENSE](LICENSE)
+
+---
+
+*Built by Frxncois — not open source.*
