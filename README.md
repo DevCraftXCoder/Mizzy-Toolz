@@ -35,7 +35,7 @@
 ## Architecture
 
 ```
-Browser  (password-authenticated session)
+Browser
   │
   ▼
 Next.js 15  (App Router · Cloudflare Workers)
