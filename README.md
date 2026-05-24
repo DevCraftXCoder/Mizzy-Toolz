@@ -9,7 +9,7 @@
 
 **Private all-in-one creator dashboard. Media downloads, creator analytics, influencer scoring, and an AI music industry learning suite.**
 
-> Password-protected, self-hosted multi-tool dashboard for independent creators. A streaming media downloader, growth analytics engine, influencer scoring system, and AI-powered music industry flashcard quiz — all served through a permanent Cloudflare Named Tunnel with zero port exposure.
+> Password-protected, self-hosted multi-tool dashboard for independent creators. A streaming media downloader, growth analytics engine, influencer scoring system, and Intelligence-driven music industry flashcard quiz — all served through a permanent Cloudflare Named Tunnel with zero port exposure.
 
 ---
 
@@ -19,11 +19,11 @@
 
 1. **Media Download** — Streaming downloader for YouTube, SoundCloud, Instagram, TikTok, Twitter/X
 2. **Influnx Calc** — 100-point influencer scoring engine (6 categories, real-time)
-3. **Growth Report** — AI-powered analytics narrative (Spotify, YouTube, Apple Music, TikTok, Instagram)
+3. **Growth Report** — Intelligence-driven analytics narrative (Spotify, YouTube, Apple Music, TikTok, Instagram)
 4. **AI Learn** — Music industry flashcard quiz (60 cards, 5 tracks, 16 badges)
 5. **EV Betta** — Real-time sports picks board with EV calculations
 6. **Finos** — Multi-platform AI finance workspace (web + desktop + API)
-7. **Biggest Bro** — AI co-pilot for independent creators
+7. **Biggest Bro** — LLM co-pilot for independent creators
 8. **Co-Writer** — AI lyric and song writing assistant
 9. **Multi-Agent** — AI agent orchestration and task automation
 10. **Underground** — Social music platform feed integration + artist profiles
