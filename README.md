@@ -3,11 +3,11 @@
 ![Next.js](https://img.shields.io/badge/Next.js_15-000000?style=flat&logo=nextdotjs&logoColor=white)
 ![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=flat&logo=typescript&logoColor=white)
 ![Cloudflare](https://img.shields.io/badge/Cloudflare-F38020?style=flat&logo=cloudflare&logoColor=white)
-![AI Powered](https://img.shields.io/badge/AI_Powered-D97706?style=flat&logo=anthropic&logoColor=white)
+![Automation Powered](https://img.shields.io/badge/AI_Powered-D97706?style=flat&logo=anthropic&logoColor=white)
 ![Docker](https://img.shields.io/badge/Docker-2496ED?style=flat&logo=docker&logoColor=white)
 ![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)
 
-**Private all-in-one creator dashboard. Media downloads, creator analytics, influencer scoring, and an AI music industry learning suite.**
+**Private all-in-one creator dashboard. Media downloads, creator analytics, influencer scoring, and an music industry learning suite.**
 
 > Password-protected, self-hosted multi-tool dashboard for independent creators. A streaming media downloader, growth analytics engine, influencer scoring system, and Intelligence-driven music industry flashcard quiz — all served through a permanent Cloudflare Named Tunnel with zero port exposure.
 
@@ -20,12 +20,12 @@
 1. **Media Download** — Streaming downloader for YouTube, SoundCloud, Instagram, TikTok, Twitter/X
 2. **Influnx Calc** — 100-point influencer scoring engine (6 categories, real-time)
 3. **Growth Report** — Intelligence-driven analytics narrative (Spotify, YouTube, Apple Music, TikTok, Instagram)
-4. **AI Learn** — Music industry flashcard quiz (60 cards, 5 tracks, 16 badges)
+4. **Learn** — Music industry flashcard quiz (60 cards, 5 tracks, 16 badges)
 5. **EV Betta** — Real-time sports picks board with EV calculations
-6. **Finos** — Multi-platform AI finance workspace (web + desktop + API)
+6. **Finos** — Multi-platform finance automation workspace (web + desktop + API)
 7. **Biggest Bro** — LLM co-pilot for independent creators
-8. **Co-Writer** — AI lyric and song writing assistant
-9. **Multi-Agent** — AI agent orchestration and task automation
+8. **Co-Writer** — lyric and song writing assistant
+9. **Multi-Agent** — automation agent orchestration and task automation
 10. **Underground** — Social music platform feed integration + artist profiles
 
 **Supporting panels:** History, Settings, Prompt Library, PDF Report Engine, API Status, Audit.
@@ -42,7 +42,7 @@ Next.js 15  (App Router · Cloudflare Workers)
   │
   ├── Download      ── Media backend ──▶ yt-dlp + ffmpeg (streaming, zero temp files)
   ├── Analytics     ── Growth Report SSE ──▶ LLM (streaming narratives)
-  ├── AI Tools      ── Biggest Bro, Co-Writer, Learn ──▶ LLM APIs
+  ├── Automation Tools      ── Biggest Bro, Co-Writer, Learn ──▶ LLM APIs
   ├── Platforms     ── EV Betta, Finos, Underground ──▶ External APIs (integrated)
   └── Calc          ── Influnx Calc (client-side, zero network calls)
 ```
@@ -58,7 +58,7 @@ All external traffic routed through Cloudflare. No direct port exposure. Downloa
 | Frontend | Next.js 15 (App Router) | Cloudflare Workers via @opennextjs/cloudflare |
 | Media Engine | yt-dlp (pinned version) + ffmpeg | Docker container, streamed output |
 | Tunnel | Cloudflare Named Tunnel (cloudflared) | Permanent public URL, zero port exposure |
-| AI | AI SDK (LLM) | SSE streaming, prompt caching |
+| LLM | LLM SDK | SSE streaming, prompt caching |
 | Auth | Web Crypto API (PBKDF2) | httpOnly cookie session — no JWT library |
 | Testing | Vitest + axe-core | 8 test files, WCAG 2.1 AA compliance |
 
@@ -83,7 +83,7 @@ Streaming media downloader for YouTube, SoundCloud, Instagram, TikTok, Twitter/X
 - Sub-100ms evaluation
 
 ### 3. Growth Report AI
-AI-generated analytics narrative from real platform data.
+auto-generated analytics narrative from real platform data.
 
 - Aggregates Spotify, YouTube, Apple Music, TikTok, Instagram metrics
 - Week / month / quarter period comparisons
@@ -91,7 +91,7 @@ AI-generated analytics narrative from real platform data.
 - Prompt caching (5-min TTL) — ~80% cost savings on repeat queries
 - CSV export, delta indicators
 
-### 4. AI Learn — Music Industry Quiz
+### 4. Learn — Music Industry Quiz
 Flashcard quiz with spaced repetition and progress tracking.
 
 - 5 learning tracks, 60 flashcards, 65 checklist items, 16 badges
@@ -106,24 +106,24 @@ Real-time sports picks board with expected-value (EV) rankings.
 - Tier-based ranking: LOCKED, STRONG, WATCH
 - Per-sport filters, ET timezone-aware date navigation
 
-### 6. Finos — AI Finance Workspace
-Multi-platform workspace for personal finance + AI intelligence.
+### 6. Finos — Finance Automation Workspace
+Multi-platform workspace for personal finance + automated intelligence.
 
 - **Platforms:** Next.js web, Tauri desktop, Hono edge API — identical UX across all three
 - **AI features:** Forecast, health-score, risk-scan, tax analytics
 - **Real-time sync:** Supabase auth + live state updates
 - **Design:** Neon cyan glassmorphism, live-drifting demo data
 
-### 7. Biggest Bro — AI Co-Pilot
-Domain-expert AI assistant for independent creators (YouTubers, musicians).
+### 7. Biggest Bro — Co-Pilot
+Domain-expert automation assistant for independent creators (YouTubers, musicians).
 
 - LLM with extended thinking (8k token budget)
 - Tool use: content calendar, trend analysis, analytics summaries
 - Conversation history + system prompt caching
 - Fallback graceful shutdown on budget overflow
 
-### 8. Co-Writer — AI Song Assistant
-AI lyric and song writing partner.
+### 8. Co-Writer — Song Assistant
+lyric and song writing partner.
 
 - Chord progressions + song structure guidance
 - Hook generation, rhyme scheme analysis
@@ -131,7 +131,7 @@ AI lyric and song writing partner.
 - Collaborative revision workflow
 
 ### 9. Multi-Agent — Agent Orchestration
-AI agent orchestrator for complex task decomposition.
+automation agent orchestrator for complex task decomposition.
 
 - Automatic agent selection (Opus/Sonnet tier-aware)
 - Parallel execution + result synthesis
@@ -172,9 +172,9 @@ The tunnel daemon initiates **outbound-only** connections to Cloudflare. No inbo
 - `--` separator between flags and URL arguments — prevents argument injection.
 - SSRF protection: only known media platform domains are accepted.
 
-### AI API Security
+### LLM API Security
 - API credentials stored server-side in environment variables — never exposed to client JavaScript.
-- User input passed to AI as structured data, never interpolated directly into prompts.
+- User input passed to the model as structured data, never interpolated directly into prompts.
 - Prompt injection mitigation: user-provided strings are treated as `user` role content, not `system` role instructions.
 - Output sanitized before rendering in the chat interface.
 
@@ -208,15 +208,15 @@ Named tunnels assign a permanent subdomain (or custom domain) routing through Cl
 ## Recent Additions (30 days)
 
 - **feat(underground):** Direct Underground social platform feed integration + profile browsing
-- **feat(multi-agent):** AI agent orchestration panel with task decomposition and parallel execution
-- **feat(co-writer):** AI lyric and song writing assistant with genre-aware tone matching
-- **feat(biggest-bro):** AI creator co-pilot with extended thinking (8k token budget)
-- **feat(finos):** Multi-platform AI finance workspace (web + desktop + edge API parity)
+- **feat(multi-agent):** automation agent orchestration panel with task decomposition and parallel execution
+- **feat(co-writer):** lyric and song writing assistant with genre-aware tone matching
+- **feat(biggest-bro):** creator co-pilot with extended thinking (8k token budget)
+- **feat(finos):** Multi-platform finance automation workspace (web + desktop + edge API parity)
 - **feat(ev-betta):** Real-time sports picks board with EV ranking engine
 - **fix(frontend):** Restore mizzy tab access gates + DFE security compliance
 - **docs:** Replace npm with pnpm for supply-chain security, refresh architecture diagrams
 - **chore:** Pin all dependencies to exact lockfile versions; add audit:ci script
-- **feat(streaming):** AI insights streaming for growth reports + quiz engine via SSE
+- **feat(streaming):** automated insights streaming for growth reports + quiz engine via SSE
 
 ---
 
